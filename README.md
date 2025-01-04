@@ -61,8 +61,8 @@ https://github.com/user-attachments/assets/a1504569-64b2-4af1-b506-20f43ebba7d5
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/mohitsinghgarry/TrendSniffer-twitter-trend-srapper.git
-   cd TrendSniffer-twitter-trend-srapper
+   git clone https://github.com/mohitsinghgarry/TrendSniffer-twitter-trend-scrapper.git
+   cd TrendSniffer-twitter-trend-scrapper
    ```
 
 2. **Create and Activate a Virtual Environment:**
