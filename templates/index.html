@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Trends</title>
+    <style>
+        /* Reset default margins and paddings */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background: linear-gradient(135deg, #1DA1F2, #00B0B9); /* Twitter color gradient */
+            color: white;
+            text-align: center;
+            transition: background-color 0.5s ease;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button Styles */
+        button {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            background-color: white;
+            color: #1DA1F2;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-5px);
+            background-color: #eaf1f8;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Trends Container */
+        #trends-container {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 750px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease-in-out;
+            transform: translateY(1px);
+        }
+
+        /* Trends List */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        ul li {
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #f4f8fb;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        ul li:hover {
+            background-color: #e2eff8;
+            transform: translateX(5px);
+        }
+
+        /* Date Container */
+        #date-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="date"] {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            border: 1px solid #d1d1d1;
+            outline: none;
+            background-color: #f4f4f4;
+            transition: 0.3s ease;
+        }
+
+        input[type="date"]:focus {
+            border-color: #1DA1F2;
+            background-color: #fff;
+        }
+
+        /* Error Message Styles */
+        p.error {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Success Message Styles */
+        p.success {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Keyframe for fade-in animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            button {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            input[type="date"] {
+                font-size: 1rem;
+            }
+
+            #trends-container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            ul li {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Twitter Trends</h1>
+    <button id="fetchTrends" onclick="fetchTrends()">Discover Trends</button>
+    
+    <div id="trends-container"></div>
+
+    <div id="date-container">
+        <h2>View Trends by Date</h2>
+        <input type="date" id="date-picker" />
+        <button onclick="fetchTrendsByDate()">Fetch Trends by Date</button>
+    </div>
+
+    <script>
+        async function fetchTrends() {
+            const trendsContainer = document.getElementById('trends-container');
+            trendsContainer.innerHTML = "<p>Fetching the latest trends... ⏳</p>";
+            try {
+                const response = await fetch('/fetch_trends');
+                const data = await response.json();
+                if (data.success) {
+                    const trendsHtml = data.trends
+                        .map((trend, index) => `<li><strong>${index + 1})</strong> ${trend}</li>`)
+                        .join('');
+                    trendsContainer.innerHTML = ` 
+                        <p><strong>Top Twitter Trends on ${new Date(data.timestamp).toLocaleString()}:</strong></p>
+                        <ul>${trendsHtml}</ul>
+                        <p style="font-style: italic; font-size: 0.9rem;">Queried using IP: ${data.ip_address}</p>
+                    `;
+                } else {
+                    trendsContainer.innerHTML = `<p class="error">Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                trendsContainer.innerHTML = `<p class="error">Error: Unable to fetch trends. Please try again later.</p>`;
+            }
+        }
+
+        async function fetchTrendsByDate() {
+            const datePicker = document.getElementById('date-picker');
+            const trendsContainer = document.getElementById('trends-container');
+            const selectedDate = datePicker.value;
+
+            if (!selectedDate) {
+                trendsContainer.innerHTML = `<p class="error">Please select a date!</p>`;
+                return;
+            }
+
+            trendsContainer.innerHTML = `<p>Fetching trends for ${selectedDate}... ⏳</p>`;
+            try {
+                const response = await fetch(`/fetch_trends_by_date?date=${selectedDate}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const trendsHtml = data.trends
+                        .map((trendData, index) => {
+                            const trendList = trendData.trends.map((trend, i) => `<li><strong>${i + 1})</strong> ${trend}</li>`).join('');
+                            return `
+                                <div>
+                                    <p><strong>Trends on ${trendData.timestamp} (IP: ${trendData.ip_address})</strong></p>
+                                    <ul>${trendList}</ul>
+                                </div>
+                            `;
+                        }).join('');
+
+                    trendsContainer.innerHTML = trendsHtml;
+                } else {
+                    trendsContainer.innerHTML = `<p class="error">${data.message}</p>`;
+                }
+            } catch (error) {
+                trendsContainer.innerHTML = `<p class="error">Error: Unable to fetch trends. Please try again later.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
